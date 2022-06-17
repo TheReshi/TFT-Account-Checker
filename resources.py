@@ -6,7 +6,13 @@ from lxml import etree
 # The main funcion after pressing the Check Account button
 def check_account(app):
     poe_account_name = app.poe_account_name_textbox.get()
-    discord_account_age = get_discord_account_age(app.discord_id_textbox.get())
+    discord_id = app.discord_id_textbox.get()
+
+    if check_input_error(app, discord_id, poe_account_name):
+        return
+
+    discord_account_age = get_discord_account_age(discord_id)
+    print(discord_account_age)
     app.discord_account_age_value.configure(text=f"{discord_account_age} Days")
     poe_account_url = get_poe_account_url(poe_account_name)
     app.poe_account_value.bind("<Button-1>", lambda e: webbrowser.open_new(poe_account_url))
@@ -15,7 +21,7 @@ def check_account(app):
 
     if not poe_account_info:
         app.poe_account_private_value.configure(text="Yes")
-        reset_fields(app)
+        reset_output_fields_post_private(app)
         return
 
     app.poe_account_private_value.configure(text="No")
@@ -39,10 +45,12 @@ def check_account(app):
     app.combined_character_list_textbox.delete("0", "end")
     app.blacklist_check_command_textbox.delete("0", "end")
 
+    unlock_output_textboxes(app)
     app.poecom_character_list_textbox.insert("0", ','.join(poe_account_info.poecom_characters))
     app.poecc_character_list_textbox.insert("0", ','.join(poe_account_info.poecc_characters))
     app.combined_character_list_textbox.insert("0", ','.join(poe_account_info.combined_characters))
     app.blacklist_check_command_textbox.insert("0", f"!blacklist check {','.join(poe_account_info.combined_characters)}")
+    lock_output_textboxes(app)
 
 # Check Discord Account Age
 def get_discord_account_age(discord_id):
@@ -52,6 +60,7 @@ def get_discord_account_age(discord_id):
     unix = int(unixbin, 2) + 1420070400000
     timestamp = unix / 1000
     date = datetime.utcfromtimestamp(timestamp)
+    print((datetime.now() - date).days)
     return (datetime.now() - date).days
 
 # Get HTML from the Overview page
@@ -92,17 +101,56 @@ def get_poe_account(poe_account_name):
         return PoEAccount(overview_soup, poecom_character_data, poecc_character_data, poe_account_name)
     return False
 
-# Resets the output fields of the app
-def reset_fields(app):
+# Resets the output fields (after PoE Account Private) of the app
+def reset_output_fields_post_private(app):
     app.poe_account_age_value.configure(text=f"")
     app.poe_guild_value.configure(text="")
     app.poe_supporter_pack_value.configure(text="")
     app.poe_challenges_value.configure(text="")
     app.poe_characters_value.configure(text="")
+    unlock_output_textboxes(app)
     app.poecom_character_list_textbox.delete("0", "end")
     app.poecc_character_list_textbox.delete("0", "end")
     app.combined_character_list_textbox.delete("0", "end")
     app.blacklist_check_command_textbox.delete("0", "end")
+    lock_output_textboxes(app)
+
+
+# Resets the output fields of the app
+def reset_output_fields(app):
+    app.discord_account_age_value.configure(text=f"")
+    app.poe_account_value.unbind("<Button-1>")
+    app.poe_account_value.configure(text=f"", fg="blue", cursor="arrow")
+    app.poe_account_private_value.configure(text="")
+    reset_output_fields_post_private(app)
+
+def check_input_error(app, discord_id, poe_account_name):
+    if len(discord_id.strip()) != 16:
+        app.input_error_label.configure(text="Incorrect Discord User ID")
+        reset_output_fields(app)
+        return True
+    
+    if not poe_account_name:
+        app.input_error_label.configure(text="Missing PoE Account Name")
+        reset_output_fields(app)
+        return True
+
+    app.input_error_label.configure(text="")
+    return False
+
+    app.input_error_label.configure(text="Incorrect Discord User ID")
+
+def unlock_output_textboxes(app):
+    app.poecom_character_list_textbox.configure(state='normal')
+    app.poecc_character_list_textbox.configure(state='normal')
+    app.combined_character_list_textbox.configure(state='normal')
+    app.blacklist_check_command_textbox.configure(state='normal')
+
+def lock_output_textboxes(app):
+    app.poecom_character_list_textbox.configure(state='readonly')
+    app.poecc_character_list_textbox.configure(state='readonly')
+    app.combined_character_list_textbox.configure(state='readonly')
+    app.blacklist_check_command_textbox.configure(state='readonly')
 
 # PoEAccount class, contains every info about the account. This is showed in the app.
 class PoEAccount:
