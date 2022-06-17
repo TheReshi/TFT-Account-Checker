@@ -18,9 +18,6 @@ class AccountChecker:
 
         self.discord_id_textbox = tk.Entry(self.inputFrame)
         self.discord_id_textbox.configure(justify="center", validate="none")
-        _text_ = "244434556638330873"
-        self.discord_id_textbox.delete("0", "end")
-        self.discord_id_textbox.insert("0", _text_)
         self.discord_id_textbox.place(anchor="nw", width=260, x=130, y=10)
 
         ## PoE Account Label & Textbox
@@ -30,9 +27,6 @@ class AccountChecker:
 
         self.poe_account_name_textbox = tk.Entry(self.inputFrame)
         self.poe_account_name_textbox.configure(justify="center")
-        _text_ = "tifatits"
-        self.poe_account_name_textbox.delete("0", "end")
-        self.poe_account_name_textbox.insert("0", _text_)
         self.poe_account_name_textbox.place(anchor="nw", width=260, x=130, y=40)
 
         ## Check Account Button
