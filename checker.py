@@ -131,6 +131,7 @@ class AccountChecker:
 
         self.poecom_character_list_textbox = tk.Entry(self.outputFrame)
         self.poecom_character_list_textbox.configure(font=cfg.value_font, state="readonly")
+        self.poecom_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.poecom_character_list_textbox.place(anchor="nw", width=380, x=10, y=220)
 
         ## PoEcc Character List Label & Textbox
@@ -140,6 +141,7 @@ class AccountChecker:
 
         self.poecc_character_list_textbox = tk.Entry(self.outputFrame)
         self.poecc_character_list_textbox.configure(font=cfg.value_font, state="readonly")
+        self.poecc_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.poecc_character_list_textbox.place(anchor="nw", width=380, x=10, y=270)
 
         ## Combined Character List Label & Textbox
@@ -149,6 +151,7 @@ class AccountChecker:
 
         self.combined_character_list_textbox = tk.Entry(self.outputFrame)
         self.combined_character_list_textbox.configure(font=cfg.value_font, state="readonly")
+        self.combined_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.combined_character_list_textbox.place(anchor="nw", width=380, x=10, y=320)
 
         ## Blacklist Check Command Label & Textbox
@@ -158,6 +161,7 @@ class AccountChecker:
 
         self.blacklist_check_command_textbox = tk.Entry(self.outputFrame)
         self.blacklist_check_command_textbox.configure(font=cfg.value_font, state="readonly")
+        self.blacklist_check_command_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.blacklist_check_command_textbox.place(anchor="nw", width=380, x=10, y=370)
 
         # WindowFrame Configures
@@ -171,6 +175,16 @@ class AccountChecker:
 
     def run(self):
         self.mainwindow.mainloop()
+
+    def copy_to_clipboard(self, event):
+        textbox_value = event.widget.get()  # get field value from event, but remove line return at end
+        self.windowFrame.clipboard_clear()  # clear clipboard contents
+        self.windowFrame.clipboard_append(textbox_value)  # append new value to clipbaord
+        self.windowFrame.after(50, self.select_all, event.widget)
+
+    def select_all(self, widget):
+        widget.select_range(0, 'end')
+        widget.icursor('end')
 
 
 if __name__ == "__main__":
