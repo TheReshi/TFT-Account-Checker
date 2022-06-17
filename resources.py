@@ -2,6 +2,7 @@ import json, re, requests, webbrowser
 from bs4 import BeautifulSoup
 from datetime import datetime
 from lxml import etree
+import config as cfg
 
 # The main funcion after pressing the Check Account button
 def check_account(app):
@@ -12,45 +13,20 @@ def check_account(app):
         return
 
     discord_account_age = get_discord_account_age(discord_id)
-    print(discord_account_age)
-    app.discord_account_age_value.configure(text=f"{discord_account_age} Days")
+    set_discord_account_age(app, discord_account_age)
     poe_account_url = get_poe_account_url(poe_account_name)
     app.poe_account_value.bind("<Button-1>", lambda e: webbrowser.open_new(poe_account_url))
     app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg="blue", cursor="hand2")
     poe_account_info = get_poe_account(poe_account_name)
 
-    if not poe_account_info:
-        app.poe_account_private_value.configure(text="Yes")
-        reset_output_fields_post_private(app)
+    if set_poe_account_private(app, poe_account_info):
         return
-
-    app.poe_account_private_value.configure(text="No")
-    app.poe_account_age_value.configure(text=f"{poe_account_info.account_age} Days")
-
-    if poe_account_info.guild:
-        app.poe_guild_value.configure(text="Yes")
-    else:
-        app.poe_guild_value.configure(text="No")
-
-    if poe_account_info.supporter_pack == 0:
-        app.poe_supporter_pack_value.configure(text="No")
-    else:
-        app.poe_supporter_pack_value.configure(text=f"Yes ({poe_account_info.supporter_pack})")
-
-    app.poe_challenges_value.configure(text=poe_account_info.challenges)
-    app.poe_characters_value.configure(text=poe_account_info.characters)
-
-    app.poecom_character_list_textbox.delete("0", "end")
-    app.poecc_character_list_textbox.delete("0", "end")
-    app.combined_character_list_textbox.delete("0", "end")
-    app.blacklist_check_command_textbox.delete("0", "end")
-
-    unlock_output_textboxes(app)
-    app.poecom_character_list_textbox.insert("0", ','.join(poe_account_info.poecom_characters))
-    app.poecc_character_list_textbox.insert("0", ','.join(poe_account_info.poecc_characters))
-    app.combined_character_list_textbox.insert("0", ','.join(poe_account_info.combined_characters))
-    app.blacklist_check_command_textbox.insert("0", f"!blacklist check {','.join(poe_account_info.combined_characters)}")
-    lock_output_textboxes(app)
+    set_poe_account_age(app, poe_account_info)
+    set_poe_account_guild(app, poe_account_info)
+    set_poe_account_supporter_pack(app, poe_account_info)
+    set_poe_account_challenges(app, poe_account_info)
+    set_poe_account_characters(app, poe_account_info)
+    set_poe_account_textboxes(app, poe_account_info)
 
 # Check Discord Account Age
 def get_discord_account_age(discord_id):
@@ -60,7 +36,6 @@ def get_discord_account_age(discord_id):
     unix = int(unixbin, 2) + 1420070400000
     timestamp = unix / 1000
     date = datetime.utcfromtimestamp(timestamp)
-    print((datetime.now() - date).days)
     return (datetime.now() - date).days
 
 # Get HTML from the Overview page
@@ -151,6 +126,67 @@ def lock_output_textboxes(app):
     app.poecc_character_list_textbox.configure(state='readonly')
     app.combined_character_list_textbox.configure(state='readonly')
     app.blacklist_check_command_textbox.configure(state='readonly')
+
+def set_discord_account_age(app, discord_account_age):
+    if discord_account_age >= cfg.good_discord_account_age:
+        app.discord_account_age_value.configure(text=f"{discord_account_age} Days", foreground=cfg.good_value_color)
+    else:
+        app.discord_account_age_value.configure(text=f"{discord_account_age} Days", foreground=cfg.bad_value_color)
+
+def set_poe_account_private(app, poe_account_info):
+    if not poe_account_info:
+        app.poe_account_private_value.configure(text="Yes", foreground=cfg.bad_value_color)
+        reset_output_fields_post_private(app)
+        return True
+
+    app.poe_account_private_value.configure(text="No", foreground=cfg.good_value_color)
+    return False
+
+def set_poe_account_age(app, poe_account_info):
+    if poe_account_info.account_age >= cfg.good_poe_account_age:
+        app.poe_account_age_value.configure(text=f"{poe_account_info.account_age} Days", foreground=cfg.good_value_color)
+    else:
+        app.poe_account_age_value.configure(text=f"{poe_account_info.account_age} Days", foreground=cfg.bad_value_color)
+
+def set_poe_account_guild(app, poe_account_info):
+    if poe_account_info.guild:
+        app.poe_guild_value.configure(text="Yes", foreground=cfg.good_value_color)
+    else:
+        app.poe_guild_value.configure(text="No", foreground=cfg.bad_value_color)
+
+def set_poe_account_supporter_pack(app, poe_account_info):
+    if poe_account_info.supporter_pack == 0:
+        app.poe_supporter_pack_value.configure(text="No", foreground=cfg.bad_value_color)
+    else:
+        app.poe_supporter_pack_value.configure(text=f"Yes ({poe_account_info.supporter_pack})", foreground=cfg.good_value_color)
+
+
+def set_poe_account_challenges(app, poe_account_info):
+    if int(poe_account_info.challenges) >= cfg.good_challenge_number:
+        app.poe_challenges_value.configure(text=poe_account_info.challenges, foreground=cfg.good_value_color)
+    else:
+        app.poe_challenges_value.configure(text=poe_account_info.challenges, foreground=cfg.bad_value_color)
+
+def set_poe_account_characters(app, poe_account_info):
+    if int(poe_account_info.characters) >= cfg.good_character_number:
+        app.poe_characters_value.configure(text=poe_account_info.characters, foreground=cfg.good_value_color)
+    else:
+        app.poe_characters_value.configure(text=poe_account_info.characters, foreground=cfg.bad_value_color)
+
+def set_poe_account_textboxes(app, poe_account_info):
+    delete_output_textbox_contents(app)
+    unlock_output_textboxes(app)
+    app.poecom_character_list_textbox.insert("0", ','.join(poe_account_info.poecom_characters))
+    app.poecc_character_list_textbox.insert("0", ','.join(poe_account_info.poecc_characters))
+    app.combined_character_list_textbox.insert("0", ','.join(poe_account_info.combined_characters))
+    app.blacklist_check_command_textbox.insert("0", f"!blacklist check {','.join(poe_account_info.combined_characters)}")
+    lock_output_textboxes(app)
+
+def delete_output_textbox_contents(app):
+    app.poecom_character_list_textbox.delete("0", "end")
+    app.poecc_character_list_textbox.delete("0", "end")
+    app.combined_character_list_textbox.delete("0", "end")
+    app.blacklist_check_command_textbox.delete("0", "end")
 
 # PoEAccount class, contains every info about the account. This is showed in the app.
 class PoEAccount:
