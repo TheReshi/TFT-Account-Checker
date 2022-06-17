@@ -56,7 +56,7 @@ def get_discord_account_age(discord_id):
 
 # Get HTML from the Overview page
 def get_overview_soup(poe_account_name):
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+    headers = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36' }
     URL = f"https://www.pathofexile.com/account/view-profile/{poe_account_name}"
     page = requests.get(URL, headers=headers)
     overview_soup = BeautifulSoup(page.content, "html.parser")
