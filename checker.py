@@ -39,7 +39,7 @@ class AccountChecker:
 
         ## Check Account Button
         self.check_account_button = tk.Button(self.inputFrame)
-        self.check_account_button.configure(text="Check Account", command=lambda: res.check_account(self), font=cfg.button_font, bg=cfg.bg_color, foreground=cfg.button_font_color)
+        self.check_account_button.configure(text="Check Account", command=lambda: res.check_account(self), font=cfg.button_font)
         self.check_account_button.place(anchor="nw", width=380, x=10, y=70)
 
 
