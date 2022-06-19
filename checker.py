@@ -1,4 +1,7 @@
 import tkinter as tk
+import tkinter.ttk as ttk
+
+from numpy import char
 import resources as res
 import config as cfg
 
@@ -189,6 +192,47 @@ class AccountChecker:
     def select_all(self, widget):
         widget.select_range(0, 'end')
         widget.icursor('end')
+
+    def create_character_window(self, poe_account):
+        self.character_window = tk.Toplevel(self.windowFrame)
+        self.character_window.wm_title(f"Characters of {poe_account.poe_account_name}")
+        self.character_table = ttk.Treeview(self.character_window, show='headings', height=len(poe_account.characters))
+        self.character_table.pack(fill="both", side="top")
+        self.character_window.configure(height=300, width=340)
+        self.character_window.pack_propagate(1)
+
+        self.character_table['columns'] = ('character_name', 'league', 'class', 'level')
+
+        #self.character_table.column("#0", width=0,  stretch=tk.NO)
+        self.character_table.column("character_name", anchor=tk.CENTER, width=130)
+        self.character_table.column("league", anchor=tk.CENTER, width=80)
+        self.character_table.column("class", anchor=tk.CENTER, width=80)
+        self.character_table.column("level", anchor=tk.CENTER, width=50)
+
+        #self.character_table.heading("#0", text="", anchor=tk.CENTER)
+        self.character_table.heading("character_name", text="Character Name", anchor=tk.CENTER)
+        self.character_table.heading("league", text="League", anchor=tk.CENTER)
+        self.character_table.heading("class", text="Class", anchor=tk.CENTER)
+        self.character_table.heading("level", text="Level", anchor=tk.CENTER)
+
+        counter = 0
+        for character in poe_account.characters:
+            #len(poecom_character_data)
+            self.add_character_to_table(self.character_table, character, counter)
+            #self.character_table.insert(parent='', index='end', iid=counter, text='', values=(character["name"], character["league"], character["class"], character["level"]))
+            counter += 1
+
+        self.character_table.tag_configure('league_highlevel', background=cfg.league_highlevel_color)
+        self.character_table.tag_configure('standard_highlevel', background=cfg.standard_highlevel_color)
+        self.character_table.tag_configure('lowlevel', background=cfg.lowlevel_color)
+
+    def add_character_to_table(self, table, character_data, counter):
+        if "Standard" not in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
+            table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('league_highlevel',))
+        elif "Standard" in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
+            table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('standard_highlevel',))
+        else:
+            table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('lowlevel',))
 
 
 if __name__ == "__main__":

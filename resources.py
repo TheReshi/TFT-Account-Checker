@@ -16,7 +16,7 @@ def check_account(app):
     set_discord_account_age(app, discord_account_age)
     poe_account_url = get_poe_account_url(poe_account_name)
     app.poe_account_value.bind("<Button-1>", lambda e: webbrowser.open_new(poe_account_url))
-    app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg="blue", cursor="hand2")
+    app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg=cfg.link_color, cursor=cfg.link_cursor, font=cfg.link_font)
     poe_account_info = get_poe_account(poe_account_name)
 
     if set_poe_account_private(app, poe_account_info):
@@ -168,10 +168,21 @@ def set_poe_account_challenges(app, poe_account_info):
         app.poe_challenges_value.configure(text=poe_account_info.challenges, foreground=cfg.bad_value_color)
 
 def set_poe_account_characters(app, poe_account_info):
-    if int(poe_account_info.characters) >= cfg.good_character_number:
-        app.poe_characters_value.configure(text=poe_account_info.characters, foreground=cfg.good_value_color)
+    status = get_character_quality(poe_account_info.characters)
+    app.poe_characters_value.bind("<Button-1>", lambda e: app.create_character_window(poe_account_info))
+    if status == 0:
+        app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.lowlevel_color, cursor=cfg.link_cursor, font=cfg.link_font)
+    elif status == 1:
+        app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.standard_highlevel_color, cursor=cfg.link_cursor, font=cfg.link_font)
     else:
-        app.poe_characters_value.configure(text=poe_account_info.characters, foreground=cfg.bad_value_color)
+        app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.league_highlevel_color, cursor=cfg.link_cursor, font=cfg.link_font)
+    # if len(poe_account_info.characters) >= cfg.good_character_number:
+        #app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg=cfg.link_color, cursor=cfg.link_cursor, font=cfg.link_font)
+        # app.poe_characters_value.bind("<Button-1>", lambda e: app.create_character_window(poe_account_info))
+        # app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.good_value_color, cursor=cfg.link_cursor, font=cfg.link_font)
+    # else:
+        # app.poe_characters_value.bind("<Button-1>", lambda e: app.create_character_window(poe_account_info))
+        # app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.bad_value_color, cursor=cfg.link_cursor, font=cfg.link_font)
 
 def set_poe_account_textboxes(app, poe_account_info):
     delete_output_textbox_contents(app)
@@ -188,10 +199,27 @@ def delete_output_textbox_contents(app):
     app.combined_character_list_textbox.delete("0", "end")
     app.blacklist_check_command_textbox.delete("0", "end")
 
+## Status description
+### 0: No characters above cfg.min_character_level
+### 1: At least 1 character above cfg.min_character_level in Standard
+### 2: At least 1 character above cfg.min_character_level in League
+def get_character_quality(characters):
+    status = 0
+    for character in characters:
+        if int(character["level"]) > cfg.min_character_level:
+            if "Standard" in character["league"]:
+                status = 1
+            else:
+                return 2
+
+    return status
+
+
 # PoEAccount class, contains every info about the account. This is showed in the app.
 class PoEAccount:
-    def __init__(self, overview_soup, poecom_character_data, poecc_character_data, poe_account_name):
-        self.private = self.get_account_private(overview_soup)
+    def __init__(self, overview_soup, poecom_character_data, poecc_character_data, poe_account_name, auto_gen=True):
+        self.poe_account_name = poe_account_name
+        self.private = False
         self.account_age = 0
         self.guild = False
         self.supporter_pack = 0
@@ -201,8 +229,10 @@ class PoEAccount:
         self.poecc_characters = []
         self.combined_characters = []
 
-        if not self.private:
-            self.set_information(overview_soup, poecom_character_data, poecc_character_data, poe_account_name)
+        if auto_gen:
+            self.private = self.get_account_private(overview_soup)
+            if not self.private:
+                self.set_information(overview_soup, poecom_character_data, poecc_character_data, poe_account_name)
 
     # Basic setter calls for all required data.
     def set_information(self, overview_soup, poecom_character_data, poecc_character_data, poe_account_name):
@@ -243,7 +273,7 @@ class PoEAccount:
         self.challenges = match[0]
 
     def set_characters(self, poecom_character_data):
-        self.characters = len(poecom_character_data)
+        self.characters = poecom_character_data
 
     def set_poecom_characters(self, poecom_character_data):
         poecom_characters = []
