@@ -27,6 +27,7 @@ def check_account(app):
     set_poe_account_challenges(app, poe_account_info)
     set_poe_account_characters(app, poe_account_info)
     set_poe_account_textboxes(app, poe_account_info, discord_id)
+    app.create_character_window(poe_account_info)
 
 # Check Discord Account Age
 def get_discord_account_age(discord_id):
@@ -104,11 +105,13 @@ def check_input_error(app, discord_id, poe_account_name):
     if len(discord_id.strip()) < 16 or len(discord_id.strip()) > 18 or not discord_id.strip().isdigit():
         app.input_error_label.configure(text="Incorrect Discord User ID")
         reset_output_fields(app)
+        app.close_character_window()
         return True
     
     if not poe_account_name:
         app.input_error_label.configure(text="Missing PoE Account Name")
         reset_output_fields(app)
+        app.close_character_window()
         return True
 
     app.input_error_label.configure(text="")
@@ -138,6 +141,7 @@ def set_poe_account_private(app, poe_account_info):
     if not poe_account_info:
         app.poe_account_private_value.configure(text="Yes", foreground=cfg.bad_value_color)
         reset_output_fields_post_private(app)
+        app.close_character_window()
         return True
 
     app.poe_account_private_value.configure(text="No", foreground=cfg.good_value_color)
@@ -208,6 +212,9 @@ def get_character_quality(characters):
                 return 2
 
     return status
+
+def open_character_window(app, poe_account):
+    app.create_character_window(poe_account)
 
 # PoEAccount class, contains every info about the account. This is showed in the app.
 class PoEAccount:
