@@ -199,14 +199,23 @@ class AccountChecker:
     def create_character_window(self, poe_account):
         if not self.character_window_open:
             self.character_window = tk.Toplevel(self.windowFrame)
+            self.character_window.resizable(width=0, height=0)
             self.character_window.wm_title(f"Characters of {poe_account.poe_account_name}")
-            self.character_table = ttk.Treeview(self.character_window, show='headings', height=len(poe_account.characters))
-            self.character_table.pack(fill="both", side="top")
+            self.character_window.iconbitmap(cfg.icon_path)
             self.character_window.configure(height=300, width=370, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
             self.character_window.pack_propagate(1)
-            self.character_window.iconbitmap(cfg.icon_path)
             self.character_window.protocol('WM_DELETE_WINDOW', self.onclose_character_window)
-            self.character_window.geometry(f"+{self.windowFrame.winfo_x() + 15}+{self.windowFrame.winfo_y() + 35}")
+            self.character_window.geometry(f"+{self.windowFrame.winfo_x() + 5}+{self.windowFrame.winfo_y() + 35}")
+
+            if len(poe_account.characters) <= 20:
+                self.character_table = ttk.Treeview(self.character_window, show='headings', height=len(poe_account.characters), selectmode='browse')
+                self.character_table.pack(fill="both", side="top")
+            else:
+                self.character_table = ttk.Treeview(self.character_window, show='headings', height=20, selectmode='browse')
+                self.character_table.pack(fill="y", side="left")
+                vertical_scrollbar = ttk.Scrollbar(self.character_window, orient="vertical", command=self.character_table.yview)
+                vertical_scrollbar.pack(side='right', fill='y')
+                self.character_table.configure(yscrollcommand=vertical_scrollbar.set)
 
             self.character_table['columns'] = ('character_name', 'league', 'class', 'level')
 
@@ -232,10 +241,12 @@ class AccountChecker:
             self.character_window_open = True
 
     def add_character_to_table(self, table, character_data, counter):
-        if "Standard" not in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
-            table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('league_highlevel',))
-        elif "Standard" in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
+        if ("Standard" in character_data["league"] or character_data["league"] == "Hardcore" or character_data["league"] == "SSF Hardcore") and int(character_data["level"]) >= cfg.min_character_level:
             table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('standard_highlevel',))
+        elif "Standard" not in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
+            table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('league_highlevel',))
+        # elif "Standard" in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
+        #     table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('standard_highlevel',))
         else:
             table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('lowlevel',))
 
