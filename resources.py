@@ -52,7 +52,7 @@ def get_poecom_character_data(poe_account_name):
     data = { 'accountName': poe_account_name }
     response = requests.post('https://www.pathofexile.com/character-window/get-characters', headers=headers, data=data)
     poecom_character_data = json.loads(response.text)
-    return poecom_character_data
+    return sorted(poecom_character_data, key=lambda character: int(character['level']), reverse=True)
 
 # Get characters from poecc.com
 def get_poecc_character_data(poe_account_name):
@@ -181,8 +181,8 @@ def set_poe_account_characters(app, poe_account_info):
         app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.league_highlevel_color, cursor=cfg.link_cursor, font=cfg.link_font)
 
 def set_poe_account_textboxes(app, poe_account_info):
-    delete_output_textbox_contents(app)
     unlock_output_textboxes(app)
+    delete_output_textbox_contents(app)
     app.poecom_character_list_textbox.insert("0", ','.join(poe_account_info.poecom_characters))
     app.poecc_character_list_textbox.insert("0", ','.join(poe_account_info.poecc_characters))
     app.combined_character_list_textbox.insert("0", ','.join(poe_account_info.combined_characters))
@@ -190,7 +190,6 @@ def set_poe_account_textboxes(app, poe_account_info):
     lock_output_textboxes(app)
 
 def delete_output_textbox_contents(app):
-    disable_output_textboxes(app)
     app.poecom_character_list_textbox.delete("0", "end")
     app.poecc_character_list_textbox.delete("0", "end")
     app.combined_character_list_textbox.delete("0", "end")

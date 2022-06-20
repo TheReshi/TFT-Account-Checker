@@ -205,7 +205,7 @@ class AccountChecker:
             self.character_window.wm_title(f"Characters of {poe_account.poe_account_name}")
             self.character_table = ttk.Treeview(self.character_window, show='headings', height=len(poe_account.characters))
             self.character_table.pack(fill="both", side="top")
-            self.character_window.configure(height=300, width=340, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
+            self.character_window.configure(height=300, width=370, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
             self.character_window.pack_propagate(1)
             self.character_window.iconbitmap(cfg.icon_path)
             self.character_window.protocol('WM_DELETE_WINDOW', self.onclose_character_window)
@@ -213,7 +213,7 @@ class AccountChecker:
             self.character_table['columns'] = ('character_name', 'league', 'class', 'level')
 
             self.character_table.column("character_name", anchor=tk.CENTER, width=130)
-            self.character_table.column("league", anchor=tk.CENTER, width=80)
+            self.character_table.column("league", anchor=tk.CENTER, width=110)
             self.character_table.column("class", anchor=tk.CENTER, width=80)
             self.character_table.column("level", anchor=tk.CENTER, width=50)
 
