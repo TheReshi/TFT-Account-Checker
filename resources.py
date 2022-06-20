@@ -113,8 +113,6 @@ def check_input_error(app, discord_id, poe_account_name):
     app.input_error_label.configure(text="")
     return False
 
-    app.input_error_label.configure(text="Incorrect Discord User ID")
-
 def unlock_output_textboxes(app):
     app.poecom_character_list_textbox.configure(state='normal')
     app.poecc_character_list_textbox.configure(state='normal')
