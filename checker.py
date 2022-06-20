@@ -1,7 +1,5 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-
-from numpy import char
 import resources as res
 import config as cfg
 
@@ -29,7 +27,7 @@ class AccountChecker:
         self.discord_id_textbox = tk.Entry(self.inputFrame)
         self.discord_id_textbox.configure(justify="center", font=cfg.value_font)
         if cfg.DEBUG:
-            self.discord_id_textbox.insert("0", "1231231231231233")
+            self.discord_id_textbox.insert("0", "243368706657222657")
         self.discord_id_textbox.place(anchor="nw", width=240, x=150, y=10)
 
         ## PoE Account Label & Textbox
