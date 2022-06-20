@@ -5,19 +5,20 @@ button_font = "{Calibri} 10 {bold}"
 value_font = "{Calibri} 11 {bold}"
 error_font = "{Calibri} 8 {bold}"
 link_font = "{Calibri} 11 {bold underline}"
+character_window_font = "{Calibri} 10 {bold}"
 
 label_font_color = '#FFFFFF'
 button_font_color = '#FFFFFF'
 error_font_color = '#ff4242'
 link_color = '#469696'
+character_window_font_color = '#FFFFFF'
 
-league_highlevel_color = '#80ff80'
-standard_highlevel_color = '#ffff00'
-lowlevel_color = '#ff2d2d'
+good_value_color = league_highlevel_color = '#008c00'
+standard_highlevel_color = '#d29600'
+lowlevel_color = '#b41414'
 
 link_cursor = 'hand2'
 
-good_value_color = "#80ff80"
 bad_value_color = "#c80000"
 good_discord_account_age = 182
 good_poe_account_age = 182

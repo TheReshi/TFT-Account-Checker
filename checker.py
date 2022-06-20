@@ -15,6 +15,9 @@ class AccountChecker:
         # Character Window Handling
         self.character_window_open = False
 
+        # Main Style
+        self.style = ttk.Style()
+
         # Input Frame
         self.inputFrame = tk.Frame(self.windowFrame)
 
@@ -218,10 +221,11 @@ class AccountChecker:
             self.character_window.resizable(width=0, height=0)
             self.character_window.wm_title(f"Characters of {poe_account.poe_account_name}")
             self.character_window.iconbitmap(cfg.icon_path)
-            self.character_window.configure(height=300, width=370, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
+            self.character_window.configure(height=300, width=470, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
             self.character_window.pack_propagate(1)
             self.character_window.protocol('WM_DELETE_WINDOW', self.onclose_character_window)
             self.character_window.geometry(f"+{self.windowFrame.winfo_x() + 5}+{self.windowFrame.winfo_y() + 35}")
+            self.style.configure("Treeview", font=cfg.character_window_font, foreground=cfg.character_window_font_color)
 
             if len(poe_account.characters) <= 20:
                 self.character_table = ttk.Treeview(self.character_window, show='headings', height=len(poe_account.characters), selectmode='browse')
@@ -235,10 +239,10 @@ class AccountChecker:
 
             self.character_table['columns'] = ('character_name', 'league', 'class', 'level')
 
-            self.character_table.column("character_name", anchor=tk.CENTER, width=130)
-            self.character_table.column("league", anchor=tk.CENTER, width=110)
-            self.character_table.column("class", anchor=tk.CENTER, width=80)
-            self.character_table.column("level", anchor=tk.CENTER, width=50)
+            self.character_table.column("character_name", anchor=tk.CENTER, width=200)
+            self.character_table.column("league", anchor=tk.CENTER, width=120)
+            self.character_table.column("class", anchor=tk.CENTER, width=90)
+            self.character_table.column("level", anchor=tk.CENTER, width=60)
 
             self.character_table.heading("character_name", text="Character Name", anchor=tk.CENTER)
             self.character_table.heading("league", text="League", anchor=tk.CENTER)
