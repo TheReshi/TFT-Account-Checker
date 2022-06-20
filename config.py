@@ -10,6 +10,7 @@ label_font_color = '#FFFFFF'
 button_font_color = '#FFFFFF'
 error_font_color = '#ff4242'
 link_color = '#469696'
+
 league_highlevel_color = '#80ff80'
 standard_highlevel_color = '#ffff00'
 lowlevel_color = '#ff2d2d'

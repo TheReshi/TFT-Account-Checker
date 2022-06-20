@@ -59,8 +59,8 @@ def get_poecc_character_data(poe_account_name):
     headers = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36' }
     page = requests.get(f"https://poecc.com/?name=viewaccount&accountName={poe_account_name}", headers=headers)
     soup = BeautifulSoup(page.content, "html.parser")
-    documentObjectModel = etree.HTML(str(soup))
-    poecc_character_data = documentObjectModel.xpath('//*[@id="html"]/body/table/tr[2]/td/table/tr/td/table[2]/tr')
+    document_object_model = etree.HTML(str(soup))
+    poecc_character_data = document_object_model.xpath('//*[@id="html"]/body/table/tr[2]/td/table/tr/td/table[2]/tr')
     return poecc_character_data
 
 # Returns pathofexile.com URL
@@ -78,11 +78,12 @@ def get_poe_account(poe_account_name):
 
 # Resets the output fields (after PoE Account Private) of the app
 def reset_output_fields_post_private(app):
-    app.poe_account_age_value.configure(text=f"")
+    app.poe_account_age_value.configure(text="")
     app.poe_guild_value.configure(text="")
     app.poe_supporter_pack_value.configure(text="")
     app.poe_challenges_value.configure(text="")
-    app.poe_characters_value.configure(text="")
+    app.poe_characters_value.unbind("<Button-1>")
+    app.poe_characters_value.configure(text="", cursor="arrow")
     unlock_output_textboxes(app)
     app.poecom_character_list_textbox.delete("0", "end")
     app.poecc_character_list_textbox.delete("0", "end")
@@ -90,17 +91,16 @@ def reset_output_fields_post_private(app):
     app.blacklist_check_command_textbox.delete("0", "end")
     lock_output_textboxes(app)
 
-
 # Resets the output fields of the app
 def reset_output_fields(app):
     app.discord_account_age_value.configure(text=f"")
     app.poe_account_value.unbind("<Button-1>")
-    app.poe_account_value.configure(text=f"", fg="blue", cursor="arrow")
+    app.poe_account_value.configure(text=f"", cursor="arrow")
     app.poe_account_private_value.configure(text="")
     reset_output_fields_post_private(app)
 
 def check_input_error(app, discord_id, poe_account_name):
-    if len(discord_id.strip()) != 16:
+    if len(discord_id.strip()) < 16 or len(discord_id.strip()) > 18:
         app.input_error_label.configure(text="Incorrect Discord User ID")
         reset_output_fields(app)
         return True
@@ -160,7 +160,6 @@ def set_poe_account_supporter_pack(app, poe_account_info):
     else:
         app.poe_supporter_pack_value.configure(text=f"Yes ({poe_account_info.supporter_pack})", foreground=cfg.good_value_color)
 
-
 def set_poe_account_challenges(app, poe_account_info):
     if int(poe_account_info.challenges) >= cfg.good_challenge_number:
         app.poe_challenges_value.configure(text=poe_account_info.challenges, foreground=cfg.good_value_color)
@@ -176,13 +175,6 @@ def set_poe_account_characters(app, poe_account_info):
         app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.standard_highlevel_color, cursor=cfg.link_cursor, font=cfg.link_font)
     else:
         app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.league_highlevel_color, cursor=cfg.link_cursor, font=cfg.link_font)
-    # if len(poe_account_info.characters) >= cfg.good_character_number:
-        #app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg=cfg.link_color, cursor=cfg.link_cursor, font=cfg.link_font)
-        # app.poe_characters_value.bind("<Button-1>", lambda e: app.create_character_window(poe_account_info))
-        # app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.good_value_color, cursor=cfg.link_cursor, font=cfg.link_font)
-    # else:
-        # app.poe_characters_value.bind("<Button-1>", lambda e: app.create_character_window(poe_account_info))
-        # app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.bad_value_color, cursor=cfg.link_cursor, font=cfg.link_font)
 
 def set_poe_account_textboxes(app, poe_account_info):
     delete_output_textbox_contents(app)
@@ -214,7 +206,6 @@ def get_character_quality(characters):
 
     return status
 
-
 # PoEAccount class, contains every info about the account. This is showed in the app.
 class PoEAccount:
     def __init__(self, overview_soup, poecom_character_data, poecc_character_data, poe_account_name, auto_gen=True):
@@ -234,7 +225,7 @@ class PoEAccount:
             if not self.private:
                 self.set_information(overview_soup, poecom_character_data, poecc_character_data, poe_account_name)
 
-    # Basic setter calls for all required data.
+    # Basic automatic setter calls for all required data.
     def set_information(self, overview_soup, poecom_character_data, poecc_character_data, poe_account_name):
         basic_information = overview_soup.find_all("div", {"class": "profile-box profile"})
         supporter_packs = overview_soup.find_all("div", {"class": "badges clearfix"})

@@ -184,9 +184,9 @@ class AccountChecker:
         self.mainwindow.mainloop()
 
     def copy_to_clipboard(self, event):
-        textbox_value = event.widget.get()  # get field value from event, but remove line return at end
-        self.windowFrame.clipboard_clear()  # clear clipboard contents
-        self.windowFrame.clipboard_append(textbox_value)  # append new value to clipbaord
+        textbox_value = event.widget.get()
+        self.windowFrame.clipboard_clear()
+        self.windowFrame.clipboard_append(textbox_value)
         self.windowFrame.after(50, self.select_all, event.widget)
 
     def select_all(self, widget):
@@ -203,13 +203,11 @@ class AccountChecker:
 
         self.character_table['columns'] = ('character_name', 'league', 'class', 'level')
 
-        #self.character_table.column("#0", width=0,  stretch=tk.NO)
         self.character_table.column("character_name", anchor=tk.CENTER, width=130)
         self.character_table.column("league", anchor=tk.CENTER, width=80)
         self.character_table.column("class", anchor=tk.CENTER, width=80)
         self.character_table.column("level", anchor=tk.CENTER, width=50)
 
-        #self.character_table.heading("#0", text="", anchor=tk.CENTER)
         self.character_table.heading("character_name", text="Character Name", anchor=tk.CENTER)
         self.character_table.heading("league", text="League", anchor=tk.CENTER)
         self.character_table.heading("class", text="Class", anchor=tk.CENTER)
@@ -217,9 +215,7 @@ class AccountChecker:
 
         counter = 0
         for character in poe_account.characters:
-            #len(poecom_character_data)
             self.add_character_to_table(self.character_table, character, counter)
-            #self.character_table.insert(parent='', index='end', iid=counter, text='', values=(character["name"], character["league"], character["class"], character["level"]))
             counter += 1
 
         self.character_table.tag_configure('league_highlevel', background=cfg.league_highlevel_color)
