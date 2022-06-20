@@ -207,6 +207,7 @@ class AccountChecker:
             self.character_window.pack_propagate(1)
             self.character_window.iconbitmap(cfg.icon_path)
             self.character_window.protocol('WM_DELETE_WINDOW', self.onclose_character_window)
+            self.character_window.geometry(f"+{self.windowFrame.winfo_x() + 15}+{self.windowFrame.winfo_y() + 35}")
 
             self.character_table['columns'] = ('character_name', 'league', 'class', 'level')
 
