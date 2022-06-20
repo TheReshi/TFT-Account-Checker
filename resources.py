@@ -26,7 +26,7 @@ def check_account(app):
     set_poe_account_supporter_pack(app, poe_account_info)
     set_poe_account_challenges(app, poe_account_info)
     set_poe_account_characters(app, poe_account_info)
-    set_poe_account_textboxes(app, poe_account_info)
+    set_poe_account_textboxes(app, poe_account_info, discord_id)
 
 # Check Discord Account Age
 def get_discord_account_age(discord_id):
@@ -89,6 +89,7 @@ def reset_output_fields_post_private(app):
     app.poecc_character_list_textbox.delete("0", "end")
     app.combined_character_list_textbox.delete("0", "end")
     app.blacklist_check_command_textbox.delete("0", "end")
+    app.unrestrict_command_textbox.delete("0", "end")
     lock_output_textboxes(app)
 
 # Resets the output fields of the app
@@ -100,7 +101,7 @@ def reset_output_fields(app):
     reset_output_fields_post_private(app)
 
 def check_input_error(app, discord_id, poe_account_name):
-    if len(discord_id.strip()) < 16 or len(discord_id.strip()) > 18:
+    if len(discord_id.strip()) < 16 or len(discord_id.strip()) > 18 or not discord_id.strip().isdigit():
         app.input_error_label.configure(text="Incorrect Discord User ID")
         reset_output_fields(app)
         return True
@@ -118,18 +119,14 @@ def unlock_output_textboxes(app):
     app.poecc_character_list_textbox.configure(state='normal')
     app.combined_character_list_textbox.configure(state='normal')
     app.blacklist_check_command_textbox.configure(state='normal')
+    app.unrestrict_command_textbox.configure(state='normal')
 
 def lock_output_textboxes(app):
     app.poecom_character_list_textbox.configure(state='readonly')
     app.poecc_character_list_textbox.configure(state='readonly')
     app.combined_character_list_textbox.configure(state='readonly')
     app.blacklist_check_command_textbox.configure(state='readonly')
-
-def disable_output_textboxes(app):
-    app.poecom_character_list_textbox.configure(state='disabled')
-    app.poecc_character_list_textbox.configure(state='disabled')
-    app.combined_character_list_textbox.configure(state='disabled')
-    app.blacklist_check_command_textbox.configure(state='disabled')
+    app.unrestrict_command_textbox.configure(state='readonly')
 
 def set_discord_account_age(app, discord_account_age):
     if discord_account_age >= cfg.good_discord_account_age:
@@ -180,13 +177,14 @@ def set_poe_account_characters(app, poe_account_info):
     else:
         app.poe_characters_value.configure(text=len(poe_account_info.characters), foreground=cfg.league_highlevel_color, cursor=cfg.link_cursor, font=cfg.link_font)
 
-def set_poe_account_textboxes(app, poe_account_info):
+def set_poe_account_textboxes(app, poe_account_info, discord_id):
     unlock_output_textboxes(app)
     delete_output_textbox_contents(app)
     app.poecom_character_list_textbox.insert("0", ','.join(poe_account_info.poecom_characters))
     app.poecc_character_list_textbox.insert("0", ','.join(poe_account_info.poecc_characters))
     app.combined_character_list_textbox.insert("0", ','.join(poe_account_info.combined_characters))
     app.blacklist_check_command_textbox.insert("0", f"!blacklist check {','.join(poe_account_info.combined_characters)}")
+    app.unrestrict_command_textbox.insert("0", f"?role {discord_id.strip()} trade restricted")
     lock_output_textboxes(app)
 
 def delete_output_textbox_contents(app):
@@ -194,6 +192,7 @@ def delete_output_textbox_contents(app):
     app.poecc_character_list_textbox.delete("0", "end")
     app.combined_character_list_textbox.delete("0", "end")
     app.blacklist_check_command_textbox.delete("0", "end")
+    app.unrestrict_command_textbox.delete("0", "end")
 
 ## Returns if there any qualified characters accoding to cfg.min_character_level
 ### 0: No characters above cfg.min_character_level

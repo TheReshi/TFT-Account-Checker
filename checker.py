@@ -138,8 +138,8 @@ class AccountChecker:
         self.poecom_character_list_label.place(anchor="nw", width=380, x=10, y=200)
 
         self.poecom_character_list_textbox = tk.Entry(self.outputFrame)
-        self.poecom_character_list_textbox.configure(font=cfg.value_font, state="disabled")
-        self.poecom_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
+        self.poecom_character_list_textbox.configure(font=cfg.value_font, state="disabled", justify='center')
+        # self.poecom_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.poecom_character_list_textbox.place(anchor="nw", width=380, x=10, y=220)
 
         ## PoEcc Character List Label & Textbox
@@ -148,8 +148,8 @@ class AccountChecker:
         self.poecc_character_list_label.place(anchor="nw", width=380, x=10, y=250)
 
         self.poecc_character_list_textbox = tk.Entry(self.outputFrame)
-        self.poecc_character_list_textbox.configure(font=cfg.value_font, state="disabled")
-        self.poecc_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
+        self.poecc_character_list_textbox.configure(font=cfg.value_font, state="readonly", justify='center')
+        # self.poecc_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.poecc_character_list_textbox.place(anchor="nw", width=380, x=10, y=270)
 
         ## Combined Character List Label & Textbox
@@ -158,8 +158,8 @@ class AccountChecker:
         self.combined_character_list_label.place(anchor="nw", width=380, x=10, y=300)
 
         self.combined_character_list_textbox = tk.Entry(self.outputFrame)
-        self.combined_character_list_textbox.configure(font=cfg.value_font, state="disabled")
-        self.combined_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
+        self.combined_character_list_textbox.configure(font=cfg.value_font, state="readonly", justify='center')
+        # self.combined_character_list_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.combined_character_list_textbox.place(anchor="nw", width=380, x=10, y=320)
 
         ## Blacklist Check Command Label & Textbox
@@ -168,14 +168,24 @@ class AccountChecker:
         self.blacklist_check_command_label.place(anchor="nw", width=380, x=10, y=350)
 
         self.blacklist_check_command_textbox = tk.Entry(self.outputFrame)
-        self.blacklist_check_command_textbox.configure(font=cfg.value_font, state="disabled")
+        self.blacklist_check_command_textbox.configure(font=cfg.value_font, state="readonly", justify='center')
         self.blacklist_check_command_textbox.bind("<Button-1>", self.copy_to_clipboard)
         self.blacklist_check_command_textbox.place(anchor="nw", width=380, x=10, y=370)
 
+        ## Unrestrict Label & Textbox
+        self.unrestrict_command_label = tk.Label(self.outputFrame)
+        self.unrestrict_command_label.configure(text="Unrestrict Command", font=cfg.label_font, bg=cfg.bg_color, foreground=cfg.label_font_color)
+        self.unrestrict_command_label.place(anchor="nw", width=380, x=10, y=400)
+
+        self.unrestrict_command_textbox = tk.Entry(self.outputFrame)
+        self.unrestrict_command_textbox.configure(font=cfg.value_font, state="readonly", justify='center')
+        self.unrestrict_command_textbox.bind("<Button-1>", self.copy_to_clipboard)
+        self.unrestrict_command_textbox.place(anchor="nw", width=380, x=10, y=420)
+
         # WindowFrame Configures
-        self.outputFrame.configure(height=400, width=400, bg=cfg.bg_color)
+        self.outputFrame.configure(height=450, width=400, bg=cfg.bg_color)
         self.outputFrame.pack(side="top")
-        self.windowFrame.configure(height=510, width=400, bg=cfg.bg_color, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
+        self.windowFrame.configure(height=560, width=400, bg=cfg.bg_color, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
         self.windowFrame.resizable(False, False)
         self.windowFrame.title("TFT Account Checker")
         self.windowFrame.iconbitmap(cfg.icon_path)
@@ -190,11 +200,17 @@ class AccountChecker:
         textbox_value = event.widget.get()
         self.windowFrame.clipboard_clear()
         self.windowFrame.clipboard_append(textbox_value)
-        self.windowFrame.after(50, self.select_all, event.widget)
+        self.change_textbox_text(event.widget, "Copied to Clipboard!")
+        self.windowFrame.after(2000, self.restore_content, event.widget, textbox_value)
 
-    def select_all(self, widget):
-        widget.select_range(0, 'end')
-        widget.icursor('end')
+    def restore_content(self, widget, content):
+        self.change_textbox_text(widget, content)
+
+    def change_textbox_text(self, textbox, text):
+        textbox.configure(state='normal')
+        textbox.delete(0, tk.END)
+        textbox.insert(0, text)
+        textbox.configure(state='readonly')
 
     def create_character_window(self, poe_account):
         if not self.character_window_open:
@@ -245,8 +261,6 @@ class AccountChecker:
             table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('standard_highlevel',))
         elif "Standard" not in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
             table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('league_highlevel',))
-        # elif "Standard" in character_data["league"] and int(character_data["level"]) >= cfg.min_character_level:
-        #     table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('standard_highlevel',))
         else:
             table.insert(parent='', index='end', iid=counter, text='', values=(character_data["name"], character_data["league"], character_data["class"], character_data["level"]), tags=('lowlevel',))
 
