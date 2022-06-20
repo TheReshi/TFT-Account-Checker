@@ -26,3 +26,4 @@ good_character_number = 5
 min_character_level = 85
 
 bg_color = '#222222'
+icon_path = "./resources/tft.ico"

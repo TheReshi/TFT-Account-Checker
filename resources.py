@@ -125,6 +125,12 @@ def lock_output_textboxes(app):
     app.combined_character_list_textbox.configure(state='readonly')
     app.blacklist_check_command_textbox.configure(state='readonly')
 
+def disable_output_textboxes(app):
+    app.poecom_character_list_textbox.configure(state='disabled')
+    app.poecc_character_list_textbox.configure(state='disabled')
+    app.combined_character_list_textbox.configure(state='disabled')
+    app.blacklist_check_command_textbox.configure(state='disabled')
+
 def set_discord_account_age(app, discord_account_age):
     if discord_account_age >= cfg.good_discord_account_age:
         app.discord_account_age_value.configure(text=f"{discord_account_age} Days", foreground=cfg.good_value_color)
@@ -184,6 +190,7 @@ def set_poe_account_textboxes(app, poe_account_info):
     lock_output_textboxes(app)
 
 def delete_output_textbox_contents(app):
+    disable_output_textboxes(app)
     app.poecom_character_list_textbox.delete("0", "end")
     app.poecc_character_list_textbox.delete("0", "end")
     app.combined_character_list_textbox.delete("0", "end")
