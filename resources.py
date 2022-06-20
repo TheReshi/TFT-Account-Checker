@@ -195,7 +195,7 @@ def delete_output_textbox_contents(app):
     app.combined_character_list_textbox.delete("0", "end")
     app.blacklist_check_command_textbox.delete("0", "end")
 
-## Status description
+## Returns if there any qualified characters accoding to cfg.min_character_level
 ### 0: No characters above cfg.min_character_level
 ### 1: At least 1 character above cfg.min_character_level in Standard
 ### 2: At least 1 character above cfg.min_character_level in League

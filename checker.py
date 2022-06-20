@@ -178,7 +178,6 @@ class AccountChecker:
         self.windowFrame.configure(height=510, width=400, bg=cfg.bg_color, highlightthickness=1, highlightbackground="#ffffff", highlightcolor="#ffffff")
         self.windowFrame.resizable(False, False)
         self.windowFrame.title("TFT Account Checker")
-        # self.windowFrame.iconphoto(False, tk.PhotoImage(file='./resources/tft.png'))
         self.windowFrame.iconbitmap(cfg.icon_path)
 
         # Main widget
