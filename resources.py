@@ -15,9 +15,14 @@ def check_account(app):
     discord_account_age = get_discord_account_age(discord_id)
     set_discord_account_age(app, discord_account_age)
     poe_account_url = get_poe_account_url(poe_account_name)
+
+    overview_soup = get_overview_soup(poe_account_name)
+    if not check_profile_existence(app, overview_soup):
+        return
+
     app.poe_account_value.bind("<Button-1>", lambda e: webbrowser.open_new(poe_account_url))
     app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg=cfg.link_color, cursor=cfg.link_cursor, font=cfg.link_font)
-    poe_account_info = get_poe_account(poe_account_name)
+    poe_account_info = get_poe_account(overview_soup, poe_account_name)
 
     if set_poe_account_private(app, poe_account_info):
         return
@@ -69,8 +74,9 @@ def get_poe_account_url(poe_account_name):
     return f"https://www.pathofexile.com/account/view-profile/{poe_account_name}"
 
 # If the account is Private, returns False. Else, it proceeds with gathering all the neccessary data.
-def get_poe_account(poe_account_name):
+def get_poe_account(overview_soup, poe_account_name):
     overview_soup = get_overview_soup(poe_account_name)
+
     if not PoEAccount.get_account_private(None, overview_soup):
         poecom_character_data = get_poecom_character_data(poe_account_name)
         poecc_character_data = get_poecc_character_data(poe_account_name)
@@ -103,18 +109,21 @@ def reset_output_fields(app):
 
 def check_input_error(app, discord_id, poe_account_name):
     if len(discord_id.strip()) < 16 or len(discord_id.strip()) > 18 or not discord_id.strip().isdigit():
-        app.input_error_label.configure(text="Incorrect Discord User ID")
+        # app.input_error_label.configure(text="Incorrect Discord User ID")
+        set_error_message(app, "Incorrect Discord User ID")
         reset_output_fields(app)
         app.close_character_window()
         return True
     
     if not poe_account_name:
-        app.input_error_label.configure(text="Missing PoE Account Name")
+        # app.input_error_label.configure(text="Missing PoE Account Name")
+        set_error_message(app, "Missing PoE Account Name")
         reset_output_fields(app)
         app.close_character_window()
         return True
 
-    app.input_error_label.configure(text="")
+    # app.input_error_label.configure(text="")
+    clear_error_message(app)
     return False
 
 def unlock_output_textboxes(app):
@@ -216,6 +225,20 @@ def get_character_quality(characters):
 def open_character_window(app, poe_account):
     app.create_character_window(poe_account)
 
+def check_profile_existence(app, overview_soup):
+    if "Profile Not Found" in overview_soup.text:
+        set_error_message(app, "Profile does not exist!")
+        reset_output_fields(app)
+        app.close_character_window()
+        return False
+    return True
+
+def set_error_message(app, message):
+    app.input_error_label.configure(text=message)
+
+def clear_error_message(app):
+    app.input_error_label.configure(text='')
+
 # PoEAccount class, contains every info about the account. This is showed in the app.
 class PoEAccount:
     def __init__(self, overview_soup, poecom_character_data, poecc_character_data, poe_account_name, auto_gen=True):
@@ -249,6 +272,7 @@ class PoEAccount:
         self.set_poecc_characters(poecc_character_data)
         self.set_combined_characters()
         return
+
 
     def get_account_private(self, overview_soup):
         if "Characters" not in str(overview_soup.find_all("div", {"class": "tab-links"})):

@@ -286,7 +286,6 @@ class AccountChecker:
         self.character_window_open = False
 
     def select_character_window_geometry(self, scrollbar=False):
-        # self.character_window.geometry(f"+{self.windowFrame.winfo_x() + 5}+{self.windowFrame.winfo_y() + 35}")
         screen_res = (self.windowFrame.winfo_screenwidth(), self.windowFrame.winfo_screenheight)
         if self.windowFrame.winfo_x() + self.main_window_width + self.character_window_width > screen_res[0]:
             if scrollbar:
@@ -294,7 +293,7 @@ class AccountChecker:
             else:
                 self.character_window.geometry(f"+{self.windowFrame.winfo_x() - self.character_window_width}+{self.windowFrame.winfo_y()}")
         else:
-                self.character_window.geometry(f"+{self.windowFrame.winfo_x() + self.main_window_width}+{self.windowFrame.winfo_y()}")
+                self.character_window.geometry(f"+{self.windowFrame.winfo_x() + self.main_window_width + 1}+{self.windowFrame.winfo_y()}")
         return
 
     def close_character_window(self):
