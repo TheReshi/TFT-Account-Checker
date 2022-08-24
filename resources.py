@@ -15,13 +15,12 @@ def check_account(app):
     discord_account_age = get_discord_account_age(discord_id)
     set_discord_account_age(app, discord_account_age)
     poe_account_url = get_poe_account_url(poe_account_name)
-
+    set_poe_account_name(app, poe_account_url)
+    # app.poe_account_value.bind("<Button-1>", lambda e: webbrowser.open_new(poe_account_url))
+    # app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg=cfg.link_color, cursor=cfg.link_cursor, font=cfg.link_font)
     overview_soup = get_overview_soup(poe_account_name)
     if not check_profile_existence(app, overview_soup):
         return
-
-    app.poe_account_value.bind("<Button-1>", lambda e: webbrowser.open_new(poe_account_url))
-    app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg=cfg.link_color, cursor=cfg.link_cursor, font=cfg.link_font)
     poe_account_info = get_poe_account(overview_soup, poe_account_name)
 
     if set_poe_account_private(app, poe_account_info):
@@ -99,12 +98,17 @@ def reset_output_fields_post_private(app):
     app.unrestrict_command_textbox.delete("0", "end")
     lock_output_textboxes(app)
 
+# Resets the output fields (after PoE Account Name) of the app
+def reset_output_fields_post_account_name(app):
+    app.poe_account_private_value.configure(text="")
+    reset_output_fields_post_private(app)
+
 # Resets the output fields of the app
 def reset_output_fields(app):
     app.discord_account_age_value.configure(text=f"")
     app.poe_account_value.unbind("<Button-1>")
     app.poe_account_value.configure(text=f"", cursor="arrow")
-    app.poe_account_private_value.configure(text="")
+    # app.poe_account_private_value.configure(text="")
     reset_output_fields_post_private(app)
 
 def check_input_error(app, discord_id, poe_account_name):
@@ -228,10 +232,14 @@ def open_character_window(app, poe_account):
 def check_profile_existence(app, overview_soup):
     if "Profile Not Found" in overview_soup.text:
         set_error_message(app, "Profile does not exist!")
-        reset_output_fields(app)
+        reset_output_fields_post_account_name(app)
         app.close_character_window()
         return False
     return True
+
+def set_poe_account_name(app, poe_account_url):
+    app.poe_account_value.bind("<Button-1>", lambda e: webbrowser.open_new(poe_account_url))
+    app.poe_account_value.configure(text=f"{app.poe_account_name_textbox.get().upper()}", fg=cfg.link_color, cursor=cfg.link_cursor, font=cfg.link_font)
 
 def set_error_message(app, message):
     app.input_error_label.configure(text=message)
@@ -262,7 +270,7 @@ class PoEAccount:
     def set_information(self, overview_soup, poecom_character_data, poecc_character_data, poe_account_name):
         basic_information = overview_soup.find_all("div", {"class": "profile-box profile"})
         supporter_packs = overview_soup.find_all("div", {"class": "badges clearfix"})
-        achievements = overview_soup.find_all("div", {"class": "profile-box achievements"})
+        achievements = overview_soup.find_all("div", {"class": "info challenges"})
         self.set_account_age(basic_information)
         self.set_guild(basic_information)
         self.set_supporter_pack(supporter_packs)
@@ -293,7 +301,7 @@ class PoEAccount:
         self.supporter_pack = str(overview_soup).count('<div class="badge">')
 
     def set_challenges(self, overview_soup):
-        challenges = str(overview_soup).split('\n')[3]
+        challenges = str(overview_soup)
         match = re.findall(r"(\d+)\/\d+", challenges)
         self.challenges = match[0]
 
